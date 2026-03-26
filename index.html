@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIN Pad Nakal - Game Ketangkasan Anak</title>
+    <title>PIN Pad Nakal - Suara Tegang!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap');
 
         body {
             font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, #FFDEE9 0%, #B5FFFC 100%);
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
             height: 100vh;
             overflow: hidden;
             display: flex;
@@ -18,140 +18,184 @@
             justify-content: center;
             margin: 0;
             touch-action: manipulation;
+            transition: background 0.5s;
+        }
+
+        body.urgent {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            animation: pulse-bg 1s infinite;
+        }
+
+        @keyframes pulse-bg {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
         }
 
         .game-card {
             background: white;
-            border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            border-radius: 35px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
             padding: 2rem;
-            width: 100%;
-            max-width: 400px;
+            width: 95%;
+            max-width: 420px;
             text-align: center;
             position: relative;
-            border: 8px solid #FFEDD5;
+            border: 10px solid #FFF;
+            transition: transform 0.3s;
+            z-index: 10;
         }
 
         .title {
             font-family: 'Fredoka One', cursive;
             color: #FF6B6B;
-            font-size: 2rem;
-            margin-bottom: 1rem;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
             text-shadow: 2px 2px #FFE3E3;
+        }
+
+        .timer-container {
+            width: 100%;
+            height: 12px;
+            background: #EDF2F7;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 2px solid #E2E8F0;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: #48BB78;
+            transition: width 0.1s linear, background 0.3s;
         }
 
         .pin-display {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-bottom: 2rem;
+            gap: 12px;
+            margin: 1.5rem 0;
         }
 
         .pin-dot {
-            width: 25px;
-            height: 25px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: #E2E8F0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid white;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid white;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .pin-dot.active {
-            background: #4ECDC4;
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+            background: #4FD1C5;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(79, 209, 197, 0.6);
         }
 
         .keypad-container {
             position: relative;
-            height: 320px;
+            height: 300px;
             width: 100%;
-            background: #F8FAFC;
-            border-radius: 20px;
+            background: #F7FAFC;
+            border-radius: 25px;
             overflow: hidden;
-            border: 2px dashed #CBD5E1;
+            border: 3px dashed #CBD5E1;
         }
 
         .num-btn {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             background: white;
-            border: 4px solid #FFD93D;
-            border-radius: 15px;
+            border: 4px solid #F6AD55;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #444;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #2D3748;
             cursor: pointer;
-            transition: transform 0.1s, top 0.3s ease-out, left 0.3s ease-out;
-            box-shadow: 0 4px 0 #FFD93D;
+            transition: top 0.25s ease-out, left 0.25s ease-out, transform 0.1s;
+            box-shadow: 0 5px 0 #F6AD55;
             user-select: none;
         }
 
         .num-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #FFD93D;
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #F6AD55;
         }
 
-        .success-overlay {
+        .overlay {
             position: absolute;
             inset: 0;
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.98);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 25px;
-            z-index: 50;
-            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+            animation: slideIn 0.4s ease-out;
+            padding: 20px;
         }
 
-        @keyframes popIn {
-            from { transform: scale(0); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .emoji-win {
-            font-size: 5rem;
-            margin-bottom: 1rem;
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .instruction {
-            font-size: 0.9rem;
-            color: #64748B;
-            margin-bottom: 10px;
-        }
-
-        .hint-text {
-            background: #FFF4E0;
-            padding: 5px 15px;
-            border-radius: 20px;
+        .hint-box {
+            background: #FFF5F5;
+            padding: 8px 20px;
+            border-radius: 15px;
+            border: 2px solid #FEB2B2;
+            color: #C53030;
+            font-weight: 800;
+            font-size: 1.1rem;
             display: inline-block;
-            color: #B45309;
-            font-weight: bold;
-            margin-top: 10px;
+        }
+
+        #start-overlay {
+            display: flex;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
         }
     </style>
 </head>
 <body>
 
-    <div class="game-card">
-        <h1 class="title">PIN NAKAL!</h1>
-        <p class="instruction">Kejar angkanya dan buka pintunya!</p>
-        
-        <div class="hint-text" id="target-hint">PIN: 1-2-3-4</div>
+    <div id="start-overlay">
+        <h1 class="text-4xl font-bold mb-4 font-['Fredoka_One'] text-yellow-400">PIN NAKAL!</h1>
+        <p class="mb-8 text-center px-4">Game ini menggunakan suara.<br>Klik tombol di bawah untuk mulai!</p>
+        <button onclick="startGame()" class="bg-yellow-400 text-gray-900 px-12 py-4 rounded-full font-bold text-2xl shadow-2xl hover:scale-110 transition-transform">
+            MULAI GAME 🔊
+        </button>
+    </div>
 
-        <div class="pin-display" id="pin-display">
+    <div class="game-card" id="game-container">
+        <h1 class="title">PIN NAKAL!</h1>
+        
+        <div class="flex justify-between items-center mb-2 px-2">
+            <span class="text-gray-500 font-bold">WAKTU: <span id="time-text">180</span>s</span>
+            <span class="text-gray-500 font-bold">RONDE: <span id="round-text">1</span>/100</span>
+        </div>
+
+        <div class="timer-container">
+            <div id="timer-bar"></div>
+        </div>
+        
+        <div class="hint-box" id="target-hint">PIN: ....</div>
+
+        <div class="pin-display">
             <div class="pin-dot"></div>
             <div class="pin-dot"></div>
             <div class="pin-dot"></div>
@@ -159,164 +203,272 @@
         </div>
 
         <div class="keypad-container" id="keypad">
-            <!-- Buttons will be generated by JS -->
+            <!-- Keypad buttons here -->
         </div>
 
-        <button onclick="resetGame()" class="mt-6 text-sm text-blue-500 underline hover:text-blue-700 font-bold">
-            Ganti PIN Baru
-        </button>
+        <p class="mt-4 text-xs text-gray-400 italic">Hati-hati, angkanya suka kabur!</p>
 
-        <!-- Success Screen -->
-        <div id="success-screen" class="success-overlay">
-            <div class="emoji-win">🎉</div>
-            <h2 class="text-3xl font-bold text-green-500 mb-2">YAY! MENANG!</h2>
-            <p class="text-gray-600 mb-6">Kamu hebat banget!</p>
-            <button onclick="resetGame()" class="bg-green-500 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-green-600 transition-all">
-                Main Lagi!
+        <!-- Screens -->
+        <div id="success-screen" class="overlay">
+            <span class="text-6xl mb-4">🏆</span>
+            <h2 class="text-3xl font-bold text-green-500 mb-2">KEREN BANGET!</h2>
+            <p class="text-gray-600 mb-6 text-center">Kamu berhasil tepat waktu!</p>
+            <button onclick="nextRound()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:bg-green-600 transition-all text-xl">
+                RONDE BERIKUTNYA
+            </button>
+        </div>
+
+        <div id="fail-screen" class="overlay">
+            <span class="text-6xl mb-4">⏰</span>
+            <h2 class="text-3xl font-bold text-red-500 mb-2">WAKTU HABIS!</h2>
+            <p class="text-gray-600 mb-6 text-center">Detak jantung makin kencang ya?</p>
+            <button onclick="resetGame()" class="bg-red-500 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:bg-red-600 transition-all text-xl">
+                COBA LAGI
             </button>
         </div>
     </div>
 
     <script>
+        // --- AUDIO ENGINE ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(freq, duration, type = 'sine', volume = 0.1) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + duration);
+        }
+
+        const sounds = {
+            tick: () => playTone(440, 0.1, 'sine', 0.05),
+            urgentTick: () => playTone(880, 0.1, 'square', 0.05),
+            click: () => playTone(600, 0.1, 'triangle', 0.1),
+            success: () => {
+                playTone(523.25, 0.1); // C5
+                setTimeout(() => playTone(659.25, 0.1), 100); // E5
+                setTimeout(() => playTone(783.99, 0.3), 200); // G5
+            },
+            fail: () => {
+                playTone(200, 0.5, 'sawtooth', 0.1);
+                playTone(150, 0.5, 'sawtooth', 0.1);
+            }
+        };
+
+        // --- GAME LOGIC ---
         const keypad = document.getElementById('keypad');
+        const timerBar = document.getElementById('timer-bar');
+        const timeText = document.getElementById('time-text');
+        const roundText = document.getElementById('round-text');
+        const targetHint = document.getElementById('target-hint');
         const dots = document.querySelectorAll('.pin-dot');
         const successScreen = document.getElementById('success-screen');
-        const targetHint = document.getElementById('target-hint');
-        
+        const failScreen = document.getElementById('fail-screen');
+        const gameContainer = document.getElementById('game-container');
+        const startOverlay = document.getElementById('start-overlay');
+
+        let pinLibrary = [];
+        let currentRound = 0;
         let targetPin = [];
         let currentInput = [];
-        const buttons = [];
+        let timeLeft = 180;
+        let maxTime = 180;
+        let timerInterval;
+        let isGameOver = false;
+        let lastTickSecond = 0;
 
-        // Inisialisasi Game
-        function init() {
-            // Generate random 4 digit pin
-            targetPin = [];
-            for(let i=0; i<4; i++) {
-                targetPin.push(Math.floor(Math.random() * 10));
+        function generatePinLibrary() {
+            const library = [];
+            while (library.length < 100) {
+                let pin = "";
+                for(let i=0; i<4; i++) pin += Math.floor(Math.random() * 10);
+                if (!library.includes(pin)) library.push(pin);
             }
-            targetHint.innerText = `PIN TARGET: ${targetPin.join(' - ')}`;
-            
+            return library;
+        }
+
+        function startGame() {
+            startOverlay.style.display = 'none';
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initGame();
+        }
+
+        function initGame() {
+            pinLibrary = generatePinLibrary();
+            currentRound = 0;
+            startRound();
+        }
+
+        function startRound() {
+            isGameOver = false;
             currentInput = [];
+            const pinString = pinLibrary[currentRound];
+            targetPin = pinString.split('').map(Number);
+            
+            roundText.innerText = currentRound + 1;
+            targetHint.innerText = `PIN TARGET: ${pinString.split('').join(' - ')}`;
             updateDots();
+            
+            timeLeft = Math.max(30, 180 - (currentRound * 2)); 
+            maxTime = timeLeft;
+            lastTickSecond = Math.ceil(timeLeft);
+            updateTimerUI();
+            
             createKeypad();
             successScreen.style.display = 'none';
+            failScreen.style.display = 'none';
+            document.body.classList.remove('urgent');
+            
+            clearInterval(timerInterval);
+            startTimerLoop();
+        }
+
+        function startTimerLoop() {
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                updateTimerUI();
+
+                const currentSec = Math.ceil(timeLeft);
+
+                // Efek Suara Detik
+                if (currentSec !== lastTickSecond) {
+                    if (timeLeft <= 10) {
+                        sounds.urgentTick();
+                    } else {
+                        sounds.tick();
+                    }
+                    lastTickSecond = currentSec;
+                }
+
+                // Efek Visual Darurat
+                if (timeLeft <= 10) {
+                    document.body.classList.add('urgent');
+                    // Tambahan suara detak lebih cepat di bawah 10 detik (opsional)
+                    if (Math.floor(timeLeft * 10) % 5 === 0) { // Bunyi tiap 0.5 detik
+                         // sounds.urgentTick(); // Aktifkan jika ingin sangat bising
+                    }
+                }
+
+                if (timeLeft <= 0) endGame(false);
+            }, 100);
+        }
+
+        function updateTimerUI() {
+            const percentage = (timeLeft / maxTime) * 100;
+            timerBar.style.width = `${percentage}%`;
+            timeText.innerText = Math.ceil(timeLeft);
+
+            if (percentage < 20) timerBar.style.background = '#F56565';
+            else if (percentage < 50) timerBar.style.background = '#ECC94B';
+            else timerBar.style.background = '#48BB78';
         }
 
         function createKeypad() {
             keypad.innerHTML = '';
-            buttons.length = 0;
-
             for (let i = 0; i <= 9; i++) {
                 const btn = document.createElement('div');
                 btn.className = 'num-btn';
                 btn.innerText = i;
-                
-                // Random initial position
-                const initialPos = getRandomPosition();
-                btn.style.left = initialPos.x + 'px';
-                btn.style.top = initialPos.y + 'px';
+                moveElementRandomly(btn);
 
-                // Event: Hindari kursor/sentuhan
-                const moveBtn = () => {
-                    const newPos = getRandomPosition();
-                    btn.style.left = newPos.x + 'px';
-                    btn.style.top = newPos.y + 'px';
+                const escape = () => {
+                    if (isGameOver) return;
+                    moveElementRandomly(btn);
                 };
 
-                btn.addEventListener('mouseenter', moveBtn);
+                btn.addEventListener('mouseenter', escape);
                 btn.addEventListener('touchstart', (e) => {
-                    // Pada mobile, kita beri kesempatan kecil untuk menekan
-                    // Jika keberuntungan berpihak, maka terinput, jika tidak dia lari
                     if (Math.random() > 0.4) {
-                        moveBtn();
+                        escape();
                         e.preventDefault();
                     }
                 });
 
                 btn.addEventListener('click', () => handleInput(i));
-
                 keypad.appendChild(btn);
-                buttons.push(btn);
             }
         }
 
-        function getRandomPosition() {
-            const padWidth = keypad.clientWidth - 70;
-            const padHeight = keypad.clientHeight - 70;
-            return {
-                x: Math.floor(Math.random() * padWidth) + 5,
-                y: Math.floor(Math.random() * padHeight) + 5
-            };
+        function moveElementRandomly(el) {
+            const padW = keypad.clientWidth - 75;
+            const padH = keypad.clientHeight - 75;
+            el.style.left = (Math.random() * padW + 5) + 'px';
+            el.style.top = (Math.random() * padH + 5) + 'px';
         }
 
         function handleInput(num) {
-            if (currentInput.length < 4) {
-                // Beri efek visual saat ditekan
-                const dot = dots[currentInput.length];
-                dot.classList.add('active');
-                
-                currentInput.push(num);
-                
-                if (currentInput.length === 4) {
-                    checkPin();
-                }
-            }
+            if (isGameOver || currentInput.length >= 4) return;
+            
+            sounds.click();
+            currentInput.push(num);
+            updateDots();
+
+            if (currentInput.length === 4) checkResult();
         }
 
         function updateDots() {
-            dots.forEach((dot, index) => {
-                if (index < currentInput.length) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
+            dots.forEach((dot, i) => dot.classList.toggle('active', i < currentInput.length));
         }
 
-        function checkPin() {
-            const isCorrect = currentInput.every((val, index) => val === targetPin[index]);
-            
-            if (isCorrect) {
-                setTimeout(() => {
-                    successScreen.style.display = 'flex';
-                }, 300);
+        function checkResult() {
+            const win = currentInput.every((v, i) => v === targetPin[i]);
+            if (win) {
+                endGame(true);
             } else {
-                // PIN Salah - Getarkan layar sedikit
-                keypad.classList.add('animate-shake');
-                setTimeout(() => {
-                    keypad.classList.remove('animate-shake');
-                    currentInput = [];
-                    updateDots();
-                    // Acak ulang posisi semua tombol
-                    buttons.forEach(btn => {
-                        const p = getRandomPosition();
-                        btn.style.left = p.x + 'px';
-                        btn.style.top = p.y + 'px';
-                    });
-                }, 500);
+                gameContainer.style.animation = 'shake 0.3s';
+                setTimeout(() => gameContainer.style.animation = '', 300);
+                currentInput = [];
+                updateDots();
+                sounds.fail(); // Suara kecil saat salah input
+            }
+        }
+
+        function endGame(isWin) {
+            isGameOver = true;
+            clearInterval(timerInterval);
+            if (isWin) {
+                sounds.success();
+                successScreen.style.display = 'flex';
+            } else {
+                sounds.fail();
+                failScreen.style.display = 'flex';
+            }
+        }
+
+        function nextRound() {
+            currentRound++;
+            if (currentRound >= 100) {
+                alert("TAMAT! Kamu jenius PIN!");
+                resetGame();
+            } else {
+                startRound();
             }
         }
 
         function resetGame() {
-            init();
+            initGame();
         }
 
-        // Helper untuk animasi shake sederhana
+        // CSS Shake
         const style = document.createElement('style');
         style.innerHTML = `
-            .animate-shake {
-                animation: shake 0.5s;
-            }
             @keyframes shake {
                 0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-10px); }
-                75% { transform: translateX(10px); }
+                25% { transform: translateX(-15px); }
+                75% { transform: translateX(15px); }
             }
         `;
         document.head.appendChild(style);
-
-        // Start game
-        window.onload = init;
     </script>
 </body>
 </html>

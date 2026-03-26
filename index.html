@@ -2,128 +2,152 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PIN Pad Nakal - Suara Tegang!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PIN Pad Nakal - PWA</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#f6d365">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PIN Nakal">
+    <meta name="description" content="Game ketangkasan memasukkan PIN untuk anak-anak">
+    
+    <!-- Web App Manifest (Inline Data URI) -->
+    <link rel="manifest" href="data:application/json,{'name':'PIN Pad Nakal','short_name':'PIN Nakal','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#f6d365','icons':[{'src':'https://api.dicebear.com/7.x/bottts/png?seed=pin','sizes':'512x512','type':'image/png'}]}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;700&display=swap');
 
+        :root {
+            --primary-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            --urgent-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        }
+
         body {
             font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            height: 100vh;
-            overflow: hidden;
+            background: var(--primary-gradient);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0;
-            touch-action: manipulation;
+            padding: 10px;
+            overflow: hidden;
+            touch-action: none; /* Mencegah pull-to-refresh di mobile */
             transition: background 0.5s;
         }
 
         body.urgent {
-            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            background: var(--urgent-gradient);
             animation: pulse-bg 1s infinite;
         }
 
         @keyframes pulse-bg {
             0%, 100% { filter: brightness(1); }
-            50% { filter: brightness(1.2); }
+            50% { filter: brightness(1.1); }
         }
 
         .game-card {
             background: white;
-            border-radius: 35px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-            padding: 2rem;
-            width: 95%;
-            max-width: 420px;
+            border-radius: clamp(20px, 5vw, 40px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            padding: clamp(1rem, 4vw, 2.5rem);
+            width: 100%;
+            max-width: 450px;
+            height: auto;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
             text-align: center;
             position: relative;
-            border: 10px solid #FFF;
-            transition: transform 0.3s;
+            border: clamp(4px, 1vw, 10px) solid #FFF;
             z-index: 10;
         }
 
         .title {
             font-family: 'Fredoka One', cursive;
             color: #FF6B6B;
-            font-size: 2.2rem;
+            font-size: clamp(1.5rem, 6vw, 2.4rem);
+            line-height: 1.2;
             margin-bottom: 0.5rem;
             text-shadow: 2px 2px #FFE3E3;
         }
 
         .timer-container {
             width: 100%;
-            height: 12px;
+            height: 10px;
             background: #EDF2F7;
             border-radius: 10px;
-            margin: 15px 0;
+            margin: 10px 0;
             overflow: hidden;
-            border: 2px solid #E2E8F0;
+            border: 1px solid #E2E8F0;
         }
 
         #timer-bar {
             width: 100%;
             height: 100%;
             background: #48BB78;
-            transition: width 0.1s linear, background 0.3s;
+            transition: width 0.1s linear;
         }
 
         .pin-display {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 1.5rem 0;
+            gap: clamp(8px, 2vw, 15px);
+            margin: 1rem 0;
         }
 
         .pin-dot {
-            width: 28px;
-            height: 28px;
+            width: clamp(20px, 5vw, 30px);
+            height: clamp(20px, 5vw, 30px);
             border-radius: 50%;
             background: #E2E8F0;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 4px solid white;
+            border: 3px solid white;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .pin-dot.active {
             background: #4FD1C5;
-            transform: scale(1.1);
+            transform: scale(1.15);
             box-shadow: 0 0 15px rgba(79, 209, 197, 0.6);
         }
 
         .keypad-container {
             position: relative;
-            height: 300px;
-            width: 100%;
-            background: #F7FAFC;
-            border-radius: 25px;
+            flex-grow: 1;
+            min-height: 280px;
+            background: #F8FAFC;
+            border-radius: 20px;
             overflow: hidden;
             border: 3px dashed #CBD5E1;
+            margin-bottom: 10px;
         }
 
         .num-btn {
             position: absolute;
-            width: 65px;
-            height: 65px;
+            width: clamp(55px, 12vw, 70px);
+            height: clamp(55px, 12vw, 70px);
             background: white;
-            border: 4px solid #F6AD55;
-            border-radius: 20px;
+            border: 3px solid #F6AD55;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: clamp(1.4rem, 5vw, 1.9rem);
             font-weight: 800;
             color: #2D3748;
             cursor: pointer;
-            transition: top 0.25s ease-out, left 0.25s ease-out, transform 0.1s;
-            box-shadow: 0 5px 0 #F6AD55;
+            transition: top 0.3s cubic-bezier(0.23, 1, 0.32, 1), left 0.3s cubic-bezier(0.23, 1, 0.32, 1), transform 0.1s;
+            box-shadow: 0 4px 0 #F6AD55;
             user-select: none;
+            touch-action: none;
+            z-index: 5;
         }
 
         .num-btn:active {
-            transform: translateY(3px);
+            transform: translateY(2px);
             box-shadow: 0 2px 0 #F6AD55;
         }
 
@@ -135,56 +159,67 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 25px;
+            border-radius: clamp(20px, 5vw, 35px);
             z-index: 100;
-            animation: slideIn 0.4s ease-out;
+            animation: fadeIn 0.4s ease-out;
             padding: 20px;
         }
 
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .hint-box {
             background: #FFF5F5;
-            padding: 8px 20px;
-            border-radius: 15px;
+            padding: 6px 15px;
+            border-radius: 12px;
             border: 2px solid #FEB2B2;
             color: #C53030;
             font-weight: 800;
-            font-size: 1.1rem;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
             display: inline-block;
         }
 
         #start-overlay {
             display: flex;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.8);
             color: white;
             position: fixed;
             inset: 0;
-            z-index: 50;
+            z-index: 200;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            text-align: center;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
         }
     </style>
 </head>
 <body>
 
     <div id="start-overlay">
-        <h1 class="text-4xl font-bold mb-4 font-['Fredoka_One'] text-yellow-400">PIN NAKAL!</h1>
-        <p class="mb-8 text-center px-4">Game ini menggunakan suara.<br>Klik tombol di bawah untuk mulai!</p>
-        <button onclick="startGame()" class="bg-yellow-400 text-gray-900 px-12 py-4 rounded-full font-bold text-2xl shadow-2xl hover:scale-110 transition-transform">
-            MULAI GAME 🔊
+        <div class="mb-6 bg-white p-4 rounded-3xl shadow-2xl">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=pin" alt="Logo" class="w-24 h-24">
+        </div>
+        <h1 class="text-4xl font-bold mb-4 font-['Fredoka_One'] text-yellow-400">PIN NAKAL PWA</h1>
+        <p class="mb-8 max-w-xs text-lg opacity-90">Kejar angka yang nakal dan buka kuncinya dalam waktu 3 menit!</p>
+        <button onclick="startGame()" class="bg-yellow-400 text-gray-900 px-12 py-4 rounded-full font-bold text-2xl shadow-[0_8px_0_#ca8a04] hover:scale-105 active:translate-y-1 active:shadow-none transition-all">
+            MULAI SEKARANG 🔊
         </button>
     </div>
 
     <div class="game-card" id="game-container">
         <h1 class="title">PIN NAKAL!</h1>
         
-        <div class="flex justify-between items-center mb-2 px-2">
+        <div class="flex justify-between items-center mb-1 px-1 text-xs sm:text-sm">
             <span class="text-gray-500 font-bold">WAKTU: <span id="time-text">180</span>s</span>
             <span class="text-gray-500 font-bold">RONDE: <span id="round-text">1</span>/100</span>
         </div>
@@ -193,7 +228,7 @@
             <div id="timer-bar"></div>
         </div>
         
-        <div class="hint-box" id="target-hint">PIN: ....</div>
+        <div class="hint-box mb-2" id="target-hint">PIN: ....</div>
 
         <div class="pin-display">
             <div class="pin-dot"></div>
@@ -203,26 +238,29 @@
         </div>
 
         <div class="keypad-container" id="keypad">
-            <!-- Keypad buttons here -->
+            <!-- Keypad generated by JS -->
         </div>
 
-        <p class="mt-4 text-xs text-gray-400 italic">Hati-hati, angkanya suka kabur!</p>
-
-        <!-- Screens -->
+        <!-- Success Screen -->
         <div id="success-screen" class="overlay">
-            <span class="text-6xl mb-4">🏆</span>
-            <h2 class="text-3xl font-bold text-green-500 mb-2">KEREN BANGET!</h2>
-            <p class="text-gray-600 mb-6 text-center">Kamu berhasil tepat waktu!</p>
-            <button onclick="nextRound()" class="bg-green-500 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:bg-green-600 transition-all text-xl">
-                RONDE BERIKUTNYA
+            <div class="bg-green-100 p-6 rounded-full mb-4">
+                <span class="text-6xl">🔓</span>
+            </div>
+            <h2 class="text-3xl font-bold text-green-600 mb-2">PIN BENAR!</h2>
+            <p class="text-gray-600 mb-8">Pintu berhasil terbuka. Lanjut?</p>
+            <button onclick="nextRound()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-green-600 transition-all text-xl">
+                RONDE LANJUT
             </button>
         </div>
 
+        <!-- Fail Screen -->
         <div id="fail-screen" class="overlay">
-            <span class="text-6xl mb-4">⏰</span>
-            <h2 class="text-3xl font-bold text-red-500 mb-2">WAKTU HABIS!</h2>
-            <p class="text-gray-600 mb-6 text-center">Detak jantung makin kencang ya?</p>
-            <button onclick="resetGame()" class="bg-red-500 text-white px-10 py-4 rounded-2xl font-bold shadow-xl hover:bg-red-600 transition-all text-xl">
+            <div class="bg-red-100 p-6 rounded-full mb-4">
+                <span class="text-6xl">🔒</span>
+            </div>
+            <h2 class="text-3xl font-bold text-red-600 mb-2">TERKUNCI!</h2>
+            <p class="text-gray-600 mb-8">Waktu habis. Ayo coba lagi!</p>
+            <button onclick="resetGame()" class="w-full bg-red-500 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-red-600 transition-all text-xl">
                 COBA LAGI
             </button>
         </div>
@@ -231,38 +269,28 @@
     <script>
         // --- AUDIO ENGINE ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
         function playTone(freq, duration, type = 'sine', volume = 0.1) {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-
-            oscillator.type = type;
-            oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + duration);
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
         }
 
         const sounds = {
-            tick: () => playTone(440, 0.1, 'sine', 0.05),
-            urgentTick: () => playTone(880, 0.1, 'square', 0.05),
+            tick: () => playTone(440, 0.05, 'sine', 0.03),
+            urgent: () => playTone(880, 0.08, 'square', 0.03),
             click: () => playTone(600, 0.1, 'triangle', 0.1),
             success: () => {
-                playTone(523.25, 0.1); // C5
-                setTimeout(() => playTone(659.25, 0.1), 100); // E5
-                setTimeout(() => playTone(783.99, 0.3), 200); // G5
+                [523, 659, 783].forEach((f, i) => setTimeout(() => playTone(f, 0.2), i * 100));
             },
-            fail: () => {
-                playTone(200, 0.5, 'sawtooth', 0.1);
-                playTone(150, 0.5, 'sawtooth', 0.1);
-            }
+            fail: () => playTone(150, 0.5, 'sawtooth', 0.1)
         };
 
         // --- GAME LOGIC ---
@@ -272,10 +300,10 @@
         const roundText = document.getElementById('round-text');
         const targetHint = document.getElementById('target-hint');
         const dots = document.querySelectorAll('.pin-dot');
+        const startOverlay = document.getElementById('start-overlay');
         const successScreen = document.getElementById('success-screen');
         const failScreen = document.getElementById('fail-screen');
         const gameContainer = document.getElementById('game-container');
-        const startOverlay = document.getElementById('start-overlay');
 
         let pinLibrary = [];
         let currentRound = 0;
@@ -287,16 +315,6 @@
         let isGameOver = false;
         let lastTickSecond = 0;
 
-        function generatePinLibrary() {
-            const library = [];
-            while (library.length < 100) {
-                let pin = "";
-                for(let i=0; i<4; i++) pin += Math.floor(Math.random() * 10);
-                if (!library.includes(pin)) library.push(pin);
-            }
-            return library;
-        }
-
         function startGame() {
             startOverlay.style.display = 'none';
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -304,7 +322,12 @@
         }
 
         function initGame() {
-            pinLibrary = generatePinLibrary();
+            pinLibrary = [];
+            while(pinLibrary.length < 100) {
+                let p = "";
+                for(let i=0; i<4; i++) p += Math.floor(Math.random() * 10);
+                if(!pinLibrary.includes(p)) pinLibrary.push(p);
+            }
             currentRound = 0;
             startRound();
         }
@@ -312,17 +335,16 @@
         function startRound() {
             isGameOver = false;
             currentInput = [];
-            const pinString = pinLibrary[currentRound];
-            targetPin = pinString.split('').map(Number);
+            const pinStr = pinLibrary[currentRound];
+            targetPin = pinStr.split('').map(Number);
             
             roundText.innerText = currentRound + 1;
-            targetHint.innerText = `PIN TARGET: ${pinString.split('').join(' - ')}`;
+            targetHint.innerText = `TARGET: ${pinStr.split('').join(' - ')}`;
             updateDots();
             
-            timeLeft = Math.max(30, 180 - (currentRound * 2)); 
-            maxTime = timeLeft;
+            maxTime = Math.max(30, 180 - (currentRound * 2));
+            timeLeft = maxTime;
             lastTickSecond = Math.ceil(timeLeft);
-            updateTimerUI();
             
             createKeypad();
             successScreen.style.display = 'none';
@@ -330,47 +352,31 @@
             document.body.classList.remove('urgent');
             
             clearInterval(timerInterval);
-            startTimerLoop();
+            timerInterval = setInterval(updateTimer, 100);
         }
 
-        function startTimerLoop() {
-            timerInterval = setInterval(() => {
-                timeLeft -= 0.1;
-                updateTimerUI();
-
-                const currentSec = Math.ceil(timeLeft);
-
-                // Efek Suara Detik
-                if (currentSec !== lastTickSecond) {
-                    if (timeLeft <= 10) {
-                        sounds.urgentTick();
-                    } else {
-                        sounds.tick();
-                    }
-                    lastTickSecond = currentSec;
-                }
-
-                // Efek Visual Darurat
-                if (timeLeft <= 10) {
-                    document.body.classList.add('urgent');
-                    // Tambahan suara detak lebih cepat di bawah 10 detik (opsional)
-                    if (Math.floor(timeLeft * 10) % 5 === 0) { // Bunyi tiap 0.5 detik
-                         // sounds.urgentTick(); // Aktifkan jika ingin sangat bising
-                    }
-                }
-
-                if (timeLeft <= 0) endGame(false);
-            }, 100);
-        }
-
-        function updateTimerUI() {
+        function updateTimer() {
+            timeLeft -= 0.1;
             const percentage = (timeLeft / maxTime) * 100;
-            timerBar.style.width = `${percentage}%`;
+            timerBar.style.width = percentage + '%';
             timeText.innerText = Math.ceil(timeLeft);
 
-            if (percentage < 20) timerBar.style.background = '#F56565';
-            else if (percentage < 50) timerBar.style.background = '#ECC94B';
-            else timerBar.style.background = '#48BB78';
+            // Audio Tick
+            const curSec = Math.ceil(timeLeft);
+            if(curSec !== lastTickSecond) {
+                timeLeft <= 10 ? sounds.urgent() : sounds.tick();
+                lastTickSecond = curSec;
+            }
+
+            // Visual Alert
+            if(timeLeft <= 10) document.body.classList.add('urgent');
+
+            if(timeLeft <= 0) endGame(false);
+            
+            // Re-color bar
+            if(percentage < 20) timerBar.style.background = '#f56565';
+            else if(percentage < 50) timerBar.style.background = '#ecc94b';
+            else timerBar.style.background = '#48bb78';
         }
 
         function createKeypad() {
@@ -379,64 +385,61 @@
                 const btn = document.createElement('div');
                 btn.className = 'num-btn';
                 btn.innerText = i;
-                moveElementRandomly(btn);
-
-                const escape = () => {
-                    if (isGameOver) return;
-                    moveElementRandomly(btn);
-                };
-
-                btn.addEventListener('mouseenter', escape);
+                
+                const move = () => { if(!isGameOver) moveRandomly(btn); };
+                
+                btn.addEventListener('mouseenter', move);
                 btn.addEventListener('touchstart', (e) => {
-                    if (Math.random() > 0.4) {
-                        escape();
-                        e.preventDefault();
-                    }
+                    if(Math.random() > 0.4) { move(); e.preventDefault(); }
+                }, {passive: false});
+
+                btn.addEventListener('click', () => {
+                    if(isGameOver) return;
+                    sounds.click();
+                    currentInput.push(i);
+                    updateDots();
+                    if(currentInput.length === 4) checkPIN();
                 });
 
-                btn.addEventListener('click', () => handleInput(i));
                 keypad.appendChild(btn);
+                moveRandomly(btn);
             }
         }
 
-        function moveElementRandomly(el) {
-            const padW = keypad.clientWidth - 75;
-            const padH = keypad.clientHeight - 75;
-            el.style.left = (Math.random() * padW + 5) + 'px';
-            el.style.top = (Math.random() * padH + 5) + 'px';
+        function moveRandomly(el) {
+            const margin = 10;
+            const maxX = keypad.clientWidth - el.clientWidth - margin;
+            const maxY = keypad.clientHeight - el.clientHeight - margin;
+            el.style.left = (Math.random() * maxX + margin/2) + 'px';
+            el.style.top = (Math.random() * maxY + margin/2) + 'px';
         }
 
-        function handleInput(num) {
-            if (isGameOver || currentInput.length >= 4) return;
-            
-            sounds.click();
-            currentInput.push(num);
-            updateDots();
-
-            if (currentInput.length === 4) checkResult();
-        }
+        // Adaptive Repositioning on Resize/Rotate
+        window.addEventListener('resize', () => {
+            const btns = document.querySelectorAll('.num-btn');
+            btns.forEach(moveRandomly);
+        });
 
         function updateDots() {
             dots.forEach((dot, i) => dot.classList.toggle('active', i < currentInput.length));
         }
 
-        function checkResult() {
-            const win = currentInput.every((v, i) => v === targetPin[i]);
-            if (win) {
+        function checkPIN() {
+            if(currentInput.join('') === pinLibrary[currentRound]) {
                 endGame(true);
             } else {
                 gameContainer.style.animation = 'shake 0.3s';
                 setTimeout(() => gameContainer.style.animation = '', 300);
+                sounds.fail();
                 currentInput = [];
                 updateDots();
-                sounds.fail(); // Suara kecil saat salah input
             }
         }
 
-        function endGame(isWin) {
+        function endGame(win) {
             isGameOver = true;
             clearInterval(timerInterval);
-            if (isWin) {
+            if(win) {
                 sounds.success();
                 successScreen.style.display = 'flex';
             } else {
@@ -447,8 +450,8 @@
 
         function nextRound() {
             currentRound++;
-            if (currentRound >= 100) {
-                alert("TAMAT! Kamu jenius PIN!");
+            if(currentRound >= 100) {
+                alert("LUAR BIASA! KAMU RAJA PIN!");
                 resetGame();
             } else {
                 startRound();
@@ -459,16 +462,20 @@
             initGame();
         }
 
-        // CSS Shake
-        const style = document.createElement('style');
-        style.innerHTML = `
-            @keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-15px); }
-                75% { transform: translateX(15px); }
-            }
-        `;
-        document.head.appendChild(style);
+        // Register Basic Service Worker for Offline PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swContent = `self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });`;
+                const blob = new Blob([swContent], {type: 'text/javascript'});
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(() => {});
+            });
+        }
+
+        // CSS Shake Injection
+        const styleSheet = document.createElement("style");
+        styleSheet.innerText = `@keyframes shake { 0%, 100% {transform: translateX(0);} 20% {transform: translateX(-10px);} 40% {transform: translateX(10px);} 60% {transform: translateX(-10px);} 80% {transform: translateX(10px);} }`;
+        document.head.appendChild(styleSheet);
     </script>
 </body>
 </html>

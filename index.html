@@ -7,13 +7,45 @@
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#f6d365">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PIN Nakal">
-    <meta name="description" content="Game ketangkasan memasukkan PIN untuk anak-anak">
     
-    <!-- Web App Manifest (Inline Data URI) -->
-    <link rel="manifest" href="data:application/json,{'name':'PIN Pad Nakal','short_name':'PIN Nakal','start_url':'.','display':'standalone','background_color':'#ffffff','theme_color':'#f6d365','icons':[{'src':'https://api.dicebear.com/7.x/bottts/png?seed=pin','sizes':'512x512','type':'image/png'}]}">
+    <!-- Link Icon untuk Apple/Safari -->
+    <link rel="apple-touch-icon" href="https://api.dicebear.com/7.x/fun-emoji/png?seed=pin&backgroundColor=f6d365&size=192">
+
+    <!-- Web App Manifest (Lengkap dengan Icon berbagai ukuran) -->
+    <!-- Menggunakan format JSON yang valid untuk kriteria instalasi PWA -->
+    <link rel="manifest" href='data:application/json,{
+        "name": "PIN Pad Nakal: Game Ketangkasan",
+        "short_name": "PIN Nakal",
+        "description": "Game ketangkasan memasukkan PIN untuk anak-anak.",
+        "start_url": "./pin_pad_game.html",
+        "display": "standalone",
+        "background_color": "#ffffff",
+        "theme_color": "#f6d365",
+        "icons": [
+            {
+                "src": "https://api.dicebear.com/7.x/fun-emoji/png?seed=pin&backgroundColor=f6d365&size=192",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any"
+            },
+            {
+                "src": "https://api.dicebear.com/7.x/fun-emoji/png?seed=pin&backgroundColor=f6d365&size=512",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any"
+            },
+            {
+                "src": "https://api.dicebear.com/7.x/fun-emoji/png?seed=pin&backgroundColor=f6d365&size=512",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "maskable"
+            }
+        ]
+    }'>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -32,9 +64,9 @@
             align-items: center;
             justify-content: center;
             margin: 0;
-            padding: 10px;
+            padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom) 10px;
             overflow: hidden;
-            touch-action: none; /* Mencegah pull-to-refresh di mobile */
+            touch-action: none;
             transition: background 0.5s;
         }
 
@@ -50,38 +82,38 @@
 
         .game-card {
             background: white;
-            border-radius: clamp(20px, 5vw, 40px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            padding: clamp(1rem, 4vw, 2.5rem);
+            border-radius: clamp(25px, 6vw, 45px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            padding: clamp(1.2rem, 5vw, 2.8rem);
             width: 100%;
             max-width: 450px;
             height: auto;
-            max-height: 95vh;
+            max-height: 92vh;
             display: flex;
             flex-direction: column;
             text-align: center;
             position: relative;
-            border: clamp(4px, 1vw, 10px) solid #FFF;
+            border: clamp(5px, 1.2vw, 12px) solid #FFF;
             z-index: 10;
         }
 
         .title {
             font-family: 'Fredoka One', cursive;
             color: #FF6B6B;
-            font-size: clamp(1.5rem, 6vw, 2.4rem);
-            line-height: 1.2;
+            font-size: clamp(1.6rem, 7vw, 2.6rem);
+            line-height: 1.1;
             margin-bottom: 0.5rem;
             text-shadow: 2px 2px #FFE3E3;
         }
 
         .timer-container {
             width: 100%;
-            height: 10px;
+            height: 14px;
             background: #EDF2F7;
-            border-radius: 10px;
+            border-radius: 20px;
             margin: 10px 0;
             overflow: hidden;
-            border: 1px solid #E2E8F0;
+            border: 2px solid #E2E8F0;
         }
 
         #timer-bar {
@@ -89,65 +121,66 @@
             height: 100%;
             background: #48BB78;
             transition: width 0.1s linear;
+            border-radius: 20px;
         }
 
         .pin-display {
             display: flex;
             justify-content: center;
-            gap: clamp(8px, 2vw, 15px);
+            gap: clamp(10px, 2.5vw, 18px);
             margin: 1rem 0;
         }
 
         .pin-dot {
-            width: clamp(20px, 5vw, 30px);
-            height: clamp(20px, 5vw, 30px);
+            width: clamp(22px, 5.5vw, 32px);
+            height: clamp(22px, 5.5vw, 32px);
             border-radius: 50%;
             background: #E2E8F0;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 3px solid white;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 4px solid white;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .pin-dot.active {
             background: #4FD1C5;
-            transform: scale(1.15);
-            box-shadow: 0 0 15px rgba(79, 209, 197, 0.6);
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(79, 209, 197, 0.8);
         }
 
         .keypad-container {
             position: relative;
             flex-grow: 1;
-            min-height: 280px;
+            min-height: 300px;
             background: #F8FAFC;
-            border-radius: 20px;
+            border-radius: 25px;
             overflow: hidden;
-            border: 3px dashed #CBD5E1;
+            border: 4px dashed #CBD5E1;
             margin-bottom: 10px;
         }
 
         .num-btn {
             position: absolute;
-            width: clamp(55px, 12vw, 70px);
-            height: clamp(55px, 12vw, 70px);
+            width: clamp(60px, 14vw, 75px);
+            height: clamp(60px, 14vw, 75px);
             background: white;
-            border: 3px solid #F6AD55;
-            border-radius: 15px;
+            border: 4px solid #F6AD55;
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: clamp(1.4rem, 5vw, 1.9rem);
+            font-size: clamp(1.5rem, 6vw, 2.2rem);
             font-weight: 800;
             color: #2D3748;
             cursor: pointer;
-            transition: top 0.3s cubic-bezier(0.23, 1, 0.32, 1), left 0.3s cubic-bezier(0.23, 1, 0.32, 1), transform 0.1s;
-            box-shadow: 0 4px 0 #F6AD55;
+            transition: top 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.1s;
+            box-shadow: 0 5px 0 #F6AD55;
             user-select: none;
             touch-action: none;
             z-index: 5;
         }
 
         .num-btn:active {
-            transform: translateY(2px);
+            transform: translateY(3px);
             box-shadow: 0 2px 0 #F6AD55;
         }
 
@@ -159,31 +192,32 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: clamp(20px, 5vw, 35px);
+            border-radius: clamp(25px, 6vw, 45px);
             z-index: 100;
-            animation: fadeIn 0.4s ease-out;
-            padding: 20px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 25px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.5); }
             to { opacity: 1; transform: scale(1); }
         }
 
         .hint-box {
             background: #FFF5F5;
-            padding: 6px 15px;
-            border-radius: 12px;
+            padding: 8px 18px;
+            border-radius: 15px;
             border: 2px solid #FEB2B2;
             color: #C53030;
             font-weight: 800;
-            font-size: clamp(0.9rem, 3vw, 1.1rem);
+            font-size: clamp(1rem, 3.5vw, 1.25rem);
             display: inline-block;
+            box-shadow: 0 4px 0 #FEB2B2;
         }
 
         #start-overlay {
             display: flex;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: white;
             position: fixed;
             inset: 0;
@@ -191,44 +225,48 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(8px);
-            padding: 20px;
+            backdrop-filter: blur(10px);
+            padding: 25px;
             text-align: center;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            20% { transform: translateX(-12px); }
+            40% { transform: translateX(12px); }
+            60% { transform: translateX(-12px); }
+            80% { transform: translateX(12px); }
         }
     </style>
 </head>
 <body>
 
     <div id="start-overlay">
-        <div class="mb-6 bg-white p-4 rounded-3xl shadow-2xl">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=pin" alt="Logo" class="w-24 h-24">
+        <div class="mb-6 bg-white p-5 rounded-[40px] shadow-2xl animate-bounce">
+            <!-- Icon dinamis dari DiceBear sebagai logo -->
+            <img src="https://api.dicebear.com/7.x/fun-emoji/svg?seed=pin&backgroundColor=f6d365" alt="Logo PIN Nakal" class="w-28 h-28">
         </div>
-        <h1 class="text-4xl font-bold mb-4 font-['Fredoka_One'] text-yellow-400">PIN NAKAL PWA</h1>
-        <p class="mb-8 max-w-xs text-lg opacity-90">Kejar angka yang nakal dan buka kuncinya dalam waktu 3 menit!</p>
-        <button onclick="startGame()" class="bg-yellow-400 text-gray-900 px-12 py-4 rounded-full font-bold text-2xl shadow-[0_8px_0_#ca8a04] hover:scale-105 active:translate-y-1 active:shadow-none transition-all">
-            MULAI SEKARANG 🔊
+        <h1 class="text-5xl font-bold mb-4 font-['Fredoka_One'] text-yellow-400">PIN NAKAL</h1>
+        <p class="mb-8 max-w-xs text-xl opacity-90 font-medium">Tangkap angka-angkanya dan pecahkan kodenya! 🚀</p>
+        <button onclick="startGame()" class="bg-yellow-400 text-gray-900 px-14 py-5 rounded-full font-bold text-3xl shadow-[0_10px_0_#ca8a04] hover:scale-110 active:translate-y-2 active:shadow-none transition-all">
+            MAIN 🔊
         </button>
+        <p class="mt-8 text-sm opacity-50">Didesain untuk Android & iPhone</p>
     </div>
 
     <div class="game-card" id="game-container">
         <h1 class="title">PIN NAKAL!</h1>
         
-        <div class="flex justify-between items-center mb-1 px-1 text-xs sm:text-sm">
-            <span class="text-gray-500 font-bold">WAKTU: <span id="time-text">180</span>s</span>
-            <span class="text-gray-500 font-bold">RONDE: <span id="round-text">1</span>/100</span>
+        <div class="flex justify-between items-center mb-1 px-1 text-sm font-bold">
+            <span class="text-gray-400">WAKTU: <span id="time-text" class="text-gray-600">180</span>s</span>
+            <span class="text-gray-400">RONDE: <span id="round-text" class="text-gray-600">1</span>/100</span>
         </div>
 
         <div class="timer-container">
             <div id="timer-bar"></div>
         </div>
         
-        <div class="hint-box mb-2" id="target-hint">PIN: ....</div>
+        <div class="hint-box mb-3" id="target-hint">PIN: ....</div>
 
         <div class="pin-display">
             <div class="pin-dot"></div>
@@ -241,27 +279,29 @@
             <!-- Keypad generated by JS -->
         </div>
 
+        <p class="mt-4 text-sm text-gray-400 font-bold animate-pulse">ANGKANYA NGGAK BISA DIAM!</p>
+
         <!-- Success Screen -->
         <div id="success-screen" class="overlay">
-            <div class="bg-green-100 p-6 rounded-full mb-4">
-                <span class="text-6xl">🔓</span>
+            <div class="bg-green-100 p-8 rounded-full mb-6">
+                <span class="text-7xl">🔓</span>
             </div>
-            <h2 class="text-3xl font-bold text-green-600 mb-2">PIN BENAR!</h2>
-            <p class="text-gray-600 mb-8">Pintu berhasil terbuka. Lanjut?</p>
-            <button onclick="nextRound()" class="w-full bg-green-500 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-green-600 transition-all text-xl">
-                RONDE LANJUT
+            <h2 class="text-4xl font-bold text-green-600 mb-2">YEAY! BENAR!</h2>
+            <p class="text-gray-500 text-lg mb-10">Kamu lincah sekali! Siap ronde selanjutnya?</p>
+            <button onclick="nextRound()" class="w-full bg-green-500 text-white py-5 rounded-3xl font-bold shadow-[0_8px_0_#166534] active:translate-y-2 active:shadow-none transition-all text-2xl">
+                LANJUT!
             </button>
         </div>
 
         <!-- Fail Screen -->
         <div id="fail-screen" class="overlay">
-            <div class="bg-red-100 p-6 rounded-full mb-4">
-                <span class="text-6xl">🔒</span>
+            <div class="bg-red-100 p-8 rounded-full mb-6">
+                <span class="text-7xl">🔒</span>
             </div>
-            <h2 class="text-3xl font-bold text-red-600 mb-2">TERKUNCI!</h2>
-            <p class="text-gray-600 mb-8">Waktu habis. Ayo coba lagi!</p>
-            <button onclick="resetGame()" class="w-full bg-red-500 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-red-600 transition-all text-xl">
-                COBA LAGI
+            <h2 class="text-4xl font-bold text-red-600 mb-2">YAAH, TERKUNCI!</h2>
+            <p class="text-gray-500 text-lg mb-10">Waktunya habis nih. Coba lagi yuk?</p>
+            <button onclick="resetGame()" class="w-full bg-red-500 text-white py-5 rounded-3xl font-bold shadow-[0_8px_0_#991b1b] active:translate-y-2 active:shadow-none transition-all text-2xl">
+                ULANGI
             </button>
         </div>
     </div>
@@ -285,12 +325,12 @@
 
         const sounds = {
             tick: () => playTone(440, 0.05, 'sine', 0.03),
-            urgent: () => playTone(880, 0.08, 'square', 0.03),
+            urgent: () => playTone(880, 0.08, 'square', 0.04),
             click: () => playTone(600, 0.1, 'triangle', 0.1),
             success: () => {
-                [523, 659, 783].forEach((f, i) => setTimeout(() => playTone(f, 0.2), i * 100));
+                [523, 659, 783, 1046].forEach((f, i) => setTimeout(() => playTone(f, 0.3), i * 100));
             },
-            fail: () => playTone(150, 0.5, 'sawtooth', 0.1)
+            fail: () => playTone(150, 0.6, 'sawtooth', 0.15)
         };
 
         // --- GAME LOGIC ---
@@ -323,10 +363,10 @@
 
         function initGame() {
             pinLibrary = [];
-            while(pinLibrary.length < 100) {
+            for(let i=0; i<100; i++) {
                 let p = "";
-                for(let i=0; i<4; i++) p += Math.floor(Math.random() * 10);
-                if(!pinLibrary.includes(p)) pinLibrary.push(p);
+                for(let j=0; j<4; j++) p += Math.floor(Math.random() * 10);
+                pinLibrary.push(p);
             }
             currentRound = 0;
             startRound();
@@ -361,19 +401,15 @@
             timerBar.style.width = percentage + '%';
             timeText.innerText = Math.ceil(timeLeft);
 
-            // Audio Tick
             const curSec = Math.ceil(timeLeft);
             if(curSec !== lastTickSecond) {
                 timeLeft <= 10 ? sounds.urgent() : sounds.tick();
                 lastTickSecond = curSec;
             }
 
-            // Visual Alert
             if(timeLeft <= 10) document.body.classList.add('urgent');
-
             if(timeLeft <= 0) endGame(false);
             
-            // Re-color bar
             if(percentage < 20) timerBar.style.background = '#f56565';
             else if(percentage < 50) timerBar.style.background = '#ecc94b';
             else timerBar.style.background = '#48bb78';
@@ -390,6 +426,7 @@
                 
                 btn.addEventListener('mouseenter', move);
                 btn.addEventListener('touchstart', (e) => {
+                    // Berikan sedikit chance (60%) untuk tombol lari saat disentuh agar tidak mustahil
                     if(Math.random() > 0.4) { move(); e.preventDefault(); }
                 }, {passive: false});
 
@@ -414,7 +451,6 @@
             el.style.top = (Math.random() * maxY + margin/2) + 'px';
         }
 
-        // Adaptive Repositioning on Resize/Rotate
         window.addEventListener('resize', () => {
             const btns = document.querySelectorAll('.num-btn');
             btns.forEach(moveRandomly);
@@ -428,8 +464,8 @@
             if(currentInput.join('') === pinLibrary[currentRound]) {
                 endGame(true);
             } else {
-                gameContainer.style.animation = 'shake 0.3s';
-                setTimeout(() => gameContainer.style.animation = '', 300);
+                gameContainer.style.animation = 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both';
+                setTimeout(() => gameContainer.style.animation = '', 400);
                 sounds.fail();
                 currentInput = [];
                 updateDots();
@@ -462,19 +498,27 @@
             initGame();
         }
 
-        // Register Basic Service Worker for Offline PWA
+        // --- PWA SERVICE WORKER ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swContent = `self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request).catch(() => caches.match(e.request))); });`;
+                const swContent = `
+                    const CACHE_NAME = 'pin-nakal-v1';
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['./pin_pad_game.html'])));
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(caches.match(e.request).then((response) => response || fetch(e.request)));
+                    });
+                `;
                 const blob = new Blob([swContent], {type: 'text/javascript'});
                 const swUrl = URL.createObjectURL(blob);
                 navigator.serviceWorker.register(swUrl).catch(() => {});
             });
         }
 
-        // CSS Shake Injection
+        // CSS Shake Injection (Tingkatkan visual feedback)
         const styleSheet = document.createElement("style");
-        styleSheet.innerText = `@keyframes shake { 0%, 100% {transform: translateX(0);} 20% {transform: translateX(-10px);} 40% {transform: translateX(10px);} 60% {transform: translateX(-10px);} 80% {transform: translateX(10px);} }`;
+        styleSheet.innerText = `@keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-8px, 0, 0); } 40%, 60% { transform: translate3d(8px, 0, 0); } }`;
         document.head.appendChild(styleSheet);
     </script>
 </body>
